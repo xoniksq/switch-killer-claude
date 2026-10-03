@@ -1,0 +1,25 @@
+{
+    "target_processes": [
+        "claude.exe",
+        "claude-code.exe",
+        "claude-ssh-proxy.exe",
+        "claude-ssh-broker.exe",
+        "claude-ssh-askpass.exe"
+    ],
+    "check_interval": 1.5,
+    "strict_mode": true,
+    "country_block": true,
+    "blocked_countries": [
+        "RU",
+        "BY"
+    ],
+    "sound_alarm": true,
+    "auto_guard": true,
+    "close_browser_claude_tabs": false,
+    "endpoints": [
+        "https://icanhazip.com",
+        "https://api.ipify.org",
+        "https://checkip.amazonaws.com",
+        "https://ifconfig.me/ip"
+    ]
+}
