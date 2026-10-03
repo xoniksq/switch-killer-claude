@@ -77,31 +77,13 @@ class ClaudeKillSwitchGUI(ctk.CTk):
         header.grid(row=0, column=0, padx=24, pady=(20, 10), sticky="ew")
         header.grid_columnconfigure(0, weight=1)
 
-        title_row = ctk.CTkFrame(header, fg_color="transparent")
-        title_row.pack(fill="x")
-
         title = ctk.CTkLabel(
-            title_row,
+            header,
             text="CLAUDE KILL SWITCH",
             font=ctk.CTkFont(family="Segoe UI", size=22, weight="bold"),
             text_color=self.TEXT_MAIN
         )
-        title.pack(side="left")
-
-        version_badge = ctk.CTkFrame(
-            title_row,
-            fg_color="#18181B",
-            corner_radius=6,
-            border_width=1,
-            border_color=self.BORDER_CHROME
-        )
-        version_badge.pack(side="right")
-        ctk.CTkLabel(
-            version_badge,
-            text="CHROME EDITION",
-            font=ctk.CTkFont(family="Consolas", size=10, weight="bold"),
-            text_color=self.TEXT_MUTED
-        ).pack(padx=10, pady=3)
+        title.pack(anchor="w")
 
         subtitle = ctk.CTkLabel(
             header,
@@ -137,7 +119,7 @@ class ClaudeKillSwitchGUI(ctk.CTk):
 
         self.status_title = ctk.CTkLabel(
             badge_frame,
-            text="STANDBY",
+            text="ОЖИДАНИЕ",
             font=ctk.CTkFont(family="Segoe UI", size=18, weight="bold"),
             text_color=self.TEXT_MAIN
         )
@@ -145,7 +127,7 @@ class ClaudeKillSwitchGUI(ctk.CTk):
 
         self.status_desc = ctk.CTkLabel(
             badge_frame,
-            text="Protection disarmed. Click 'ARM PROTECTION' to lock your current VPN connection.",
+            text="Защита отключена. Нажмите «ВКЛЮЧИТЬ ЗАЩИТУ», чтобы зафиксировать текущий VPN IP.",
             font=ctk.CTkFont(size=12),
             text_color=self.TEXT_MUTED,
             wraplength=320,
@@ -214,7 +196,7 @@ class ClaudeKillSwitchGUI(ctk.CTk):
         # Chrome White Button
         self.btn_arm_toggle = ctk.CTkButton(
             ctrl_frame,
-            text="ARM PROTECTION",
+            text="ВКЛЮЧИТЬ ЗАЩИТУ",
             font=ctk.CTkFont(family="Segoe UI", size=13, weight="bold"),
             fg_color="#FFFFFF",
             hover_color="#E4E4E7",
@@ -228,7 +210,7 @@ class ClaudeKillSwitchGUI(ctk.CTk):
         # Sleek Obsidian Outline Button
         self.btn_launch_claude = ctk.CTkButton(
             ctrl_frame,
-            text="LAUNCH CLAUDE",
+            text="ЗАПУСТИТЬ CLAUDE",
             font=ctk.CTkFont(family="Segoe UI", size=13, weight="bold"),
             fg_color="#18181B",
             hover_color="#27272A",
@@ -244,7 +226,7 @@ class ClaudeKillSwitchGUI(ctk.CTk):
         # Monochrome Panic Kill
         self.btn_panic_kill = ctk.CTkButton(
             ctrl_frame,
-            text="PANIC KILL",
+            text="ЭКСТРЕННО ЗАКРЫТЬ",
             font=ctk.CTkFont(family="Segoe UI", size=13, weight="bold"),
             fg_color="#18181B",
             hover_color="#2D1518",
@@ -379,12 +361,12 @@ class ClaudeKillSwitchGUI(ctk.CTk):
             if state == KillSwitchEngine.STATE_ARMED:
                 self.status_card.configure(border_color=self.BORDER_ARMED)
                 self.status_dot.configure(text="●", text_color="#FFFFFF")
-                self.status_title.configure(text="ARMED & PROTECTED", text_color="#FFFFFF")
+                self.status_title.configure(text="ЗАЩИТА АКТИВНА", text_color="#FFFFFF")
                 self.status_desc.configure(
-                    text="Network connection locked. Instant process termination will trigger upon any IP variation or adapter drop."
+                    text="IP-соединение зафиксировано. При любой смене IP или отключении VPN все процессы Claude будут мгновенно завершены."
                 )
                 self.btn_arm_toggle.configure(
-                    text="DISARM",
+                    text="ОТКЛЮЧИТЬ ЗАЩИТУ",
                     fg_color="#18181B",
                     hover_color="#27272A",
                     border_width=1,
@@ -400,12 +382,12 @@ class ClaudeKillSwitchGUI(ctk.CTk):
             elif state == KillSwitchEngine.STATE_TRIGGERED:
                 self.status_card.configure(border_color=self.BORDER_ALERT)
                 self.status_dot.configure(text="▲", text_color=self.BORDER_ALERT)
-                self.status_title.configure(text="SYSTEM TRIGGERED", text_color=self.BORDER_ALERT)
+                self.status_title.configure(text="ТРЕВОГА: CLAUDE ЗАКРЫТ", text_color=self.BORDER_ALERT)
                 self.status_desc.configure(
-                    text=f"CRITICAL: Claude was forcefully terminated. Trigger reason: {message}"
+                    text=f"Внимание: Claude был принудительно закрыт. Причина: {message}"
                 )
                 self.btn_arm_toggle.configure(
-                    text="RESET & RE-ARM",
+                    text="СБРОСИТЬ ТРЕВОГУ",
                     fg_color="#7F1D1D",
                     hover_color="#991B1B",
                     border_width=1,
@@ -416,18 +398,18 @@ class ClaudeKillSwitchGUI(ctk.CTk):
             else:  # DISARMED
                 self.status_card.configure(border_color=self.BORDER_CHROME)
                 self.status_dot.configure(text="○", text_color=self.TEXT_DIM)
-                self.status_title.configure(text="STANDBY", text_color=self.TEXT_MAIN)
+                self.status_title.configure(text="ОЖИДАНИЕ", text_color=self.TEXT_MAIN)
                 self.status_desc.configure(
-                    text="Protection disarmed. Click 'ARM PROTECTION' to lock your current VPN connection."
+                    text="Защита отключена. Нажмите «ВКЛЮЧИТЬ ЗАЩИТУ», чтобы зафиксировать текущий VPN IP."
                 )
                 self.btn_arm_toggle.configure(
-                    text="ARM PROTECTION",
+                    text="ВКЛЮЧИТЬ ЗАЩИТУ",
                     fg_color="#FFFFFF",
                     hover_color="#E4E4E7",
                     border_width=0,
                     text_color="#000000"
                 )
-                self.lbl_locked_ip.configure(text="UNLOCKED", text_color=self.TEXT_DIM)
+                self.lbl_locked_ip.configure(text="НЕ ЗАФИКСИРОВАН", text_color=self.TEXT_DIM)
 
         self.after(0, update)
 
