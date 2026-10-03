@@ -15,7 +15,7 @@ from engine import KillSwitchEngine, IPInfo
 I18N = {
     "ru": {
         "title": "CLAUDE KILL SWITCH",
-        "subtitle": "СИСТЕМА ЗАЩИТЫ ОТ УТЕЧКИ СЕТИ ДЛЯ ANTHROPIC CLAUDE",
+        "subtitle": "СИСТЕМА ЗАЩИТЫ ОТ УТЕЧКИ СЕТИ • АВТОР: XONIKSQ",
         "status_standby": "ОЖИДАНИЕ",
         "status_standby_desc": "Защита отключена. Нажмите «ВКЛЮЧИТЬ ЗАЩИТУ», чтобы зафиксировать текущий VPN IP.",
         "status_armed": "ЗАЩИТА АКТИВНА",
@@ -52,7 +52,7 @@ I18N = {
     },
     "en": {
         "title": "CLAUDE KILL SWITCH",
-        "subtitle": "HARDWARE-LEVEL ANTI-LEAK NETWORK MONITOR FOR ANTHROPIC CLAUDE",
+        "subtitle": "HARDWARE-LEVEL ANTI-LEAK NETWORK MONITOR • BY XONIKSQ",
         "status_standby": "STANDBY",
         "status_standby_desc": "Protection disarmed. Click 'ENABLE PROTECTION' to lock your current VPN connection.",
         "status_armed": "ARMED & PROTECTED",

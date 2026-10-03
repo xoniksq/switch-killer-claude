@@ -4,7 +4,8 @@
   <img src="https://img.shields.io/badge/OS-Windows%2010%20%7C%2011-blue?logo=windows" alt="Windows" />
   <img src="https://img.shields.io/badge/Python-3.10%2B-brightgreen?logo=python" alt="Python" />
   <img src="https://img.shields.io/badge/GUI-CustomTkinter-blueviolet" alt="CustomTkinter" />
-  <img src="https://img.shields.io/badge/License-MIT-yellow" alt="License" />
+  <img src="https://img.shields.io/badge/License-Freeware%20%7C%20Non--Commercial-red" alt="License" />
+  <img src="https://img.shields.io/badge/Author-xoniksq-white?logo=github" alt="Author" />
 </p>
 
 Утилита **Kill Switch** для Windows, предотвращающая блокировку аккаунта Claude (Anthropic). Программа отслеживает сетевой интерфейс и внешний IP-адрес в режиме реального времени. 
@@ -95,6 +96,16 @@ python main.py --cli
 
 ---
 
+## 👤 Автор
+
+Разработчик: **[xoniksq](https://github.com/xoniksq)**
+
+---
+
 ## 📄 Лицензия
 
-Распространяется под свободной лицензией [MIT](LICENSE). Разрешено свободное использование, модификация и распространение.
+Программное обеспечение распространяется под лицензией **Freeware (Non-Commercial, No-Derivatives)**:
+- ✅ **Бесплатное использование:** разрешено свободное личное и некоммерческое использование.
+- ✅ **Бесплатное распространение:** разрешено делиться программой в исходном виде с обязательным указанием авторства (`xoniksq`).
+- ❌ **Запрет коммерции и продаж:** продажа, сублицензирование, монетизация или взимание платы за программу строго запрещены.
+- ❌ **Запрет модификаций:** изменение кода, создание производных версий и их распространение запрещены без письменного согласия автора.
