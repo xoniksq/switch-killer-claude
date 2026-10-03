@@ -222,12 +222,13 @@ class KillSwitchEngine:
 
     def _play_alarm_sound(self):
         try:
-            for _ in range(3):
-                winsound.Beep(1500, 150)
-                time.sleep(0.05)
-            winsound.Beep(1000, 400)
+            # Native Windows Critical Error sound (System Hand / Error icon)
+            winsound.MessageBeep(winsound.MB_ICONHAND)
         except Exception:
-            pass
+            try:
+                winsound.PlaySound("SystemHand", winsound.SND_ALIAS)
+            except Exception:
+                pass
 
     # ==================== CONTROLS (ARM / DISARM) ====================
 
