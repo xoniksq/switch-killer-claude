@@ -19,6 +19,7 @@ DEFAULT_CONFIG = {
     "sound_alarm": True,               # Audible beep on kill
     "auto_guard": True,                # Prevent Claude from starting if kill switch is disarmed or unsafe
     "close_browser_claude_tabs": False, # Optional: close browser tabs (future extension)
+    "claude_path": "",                 # Custom path to claude.exe if non-standard
     "endpoints": [
         "https://icanhazip.com",
         "https://api.ipify.org",
@@ -27,19 +28,64 @@ DEFAULT_CONFIG = {
     ]
 }
 
-def get_claude_executable_path() -> str:
+def get_claude_executable_path(custom_path: str = "") -> str:
     """Finds Claude Desktop executable path on user's machine."""
+    # 1. Custom path override (argument or config)
+    if custom_path and os.path.isfile(custom_path):
+        return custom_path
+
+    cfg = load_config()
+    cfg_path = cfg.get("claude_path", "")
+    if cfg_path and os.path.isfile(cfg_path):
+        return cfg_path
+
+    # 2. Check standard Windows installation directories
     local_app_data = os.environ.get("LOCALAPPDATA", "")
+    app_data = os.environ.get("APPDATA", "")
+    prog_files = os.environ.get("ProgramFiles", "")
+    prog_files_x86 = os.environ.get("ProgramFiles(x86)", "")
+
+    candidates = []
+
     if local_app_data:
-        claude_path = Path(local_app_data) / "AnthropicClaude" / "claude.exe"
-        if claude_path.exists():
-            return str(claude_path)
-        
-        # Check subdirectories if any
         base_dir = Path(local_app_data) / "AnthropicClaude"
+        candidates.append(base_dir / "claude.exe")
         if base_dir.exists():
-            for p in base_dir.glob("app-*/claude.exe"):
-                return str(p)
+            try:
+                for p in sorted(base_dir.glob("app-*/claude.exe"), reverse=True):
+                    candidates.append(p)
+            except Exception:
+                pass
+        candidates.append(Path(local_app_data) / "Programs" / "Claude" / "Claude.exe")
+        candidates.append(Path(local_app_data) / "Programs" / "Claude" / "claude.exe")
+        candidates.append(Path(local_app_data) / "Claude" / "Claude.exe")
+        candidates.append(Path(local_app_data) / "Claude" / "claude.exe")
+
+    if app_data:
+        candidates.append(Path(app_data) / "Claude" / "claude.exe")
+        candidates.append(Path(app_data) / "AnthropicClaude" / "claude.exe")
+
+    if prog_files:
+        candidates.append(Path(prog_files) / "AnthropicClaude" / "claude.exe")
+        candidates.append(Path(prog_files) / "Claude" / "Claude.exe")
+        candidates.append(Path(prog_files) / "Claude" / "claude.exe")
+
+    if prog_files_x86:
+        candidates.append(Path(prog_files_x86) / "AnthropicClaude" / "claude.exe")
+        candidates.append(Path(prog_files_x86) / "Claude" / "Claude.exe")
+        candidates.append(Path(prog_files_x86) / "Claude" / "claude.exe")
+
+    for cand in candidates:
+        if cand.is_file():
+            return str(cand)
+
+    # 3. Check system PATH
+    import shutil
+    for cmd in ["claude.exe", "claude"]:
+        found = shutil.which(cmd)
+        if found and os.path.isfile(found):
+            return found
+
     return ""
 
 def load_config() -> dict:

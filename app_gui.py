@@ -3,8 +3,9 @@ import sys
 import time
 import datetime
 import threading
+import webbrowser
 import tkinter as tk
-from tkinter import messagebox
+from tkinter import messagebox, filedialog
 
 import customtkinter as ctk
 
@@ -46,6 +47,13 @@ I18N = {
         "denied_msg": "Не удалось включить защиту.\nУбедитесь, что VPN включен и IP не принадлежит России.",
         "launch_denied_title": "Безопасный запуск отклонён",
         "launch_denied_msg": "Запуск отменён в целях безопасности:\n{}",
+        "claude_not_found_title": "Claude Desktop не найден",
+        "claude_not_found_desc": "Официальное приложение Claude Desktop не найдено на этом компьютере.\n\n• Если Claude установлен в другую папку — укажите путь к claude.exe вручную.\n• Если Claude ещё не установлен — скачайте его с официального сайта claude.ai.",
+        "btn_browse_claude": "УКАЗАТЬ CLAUDE.EXE",
+        "btn_download_claude": "СКАЧАТЬ С CLAUDE.AI",
+        "btn_close": "ЗАКРЫТЬ",
+        "path_saved_title": "Путь сохранён",
+        "path_saved_msg": "Исполняемый файл Claude успешно сохранён:\n{}",
         "lang_name": "RU",
         "theme_dark": "ТЕМНАЯ",
         "theme_light": "СВЕТЛАЯ"
@@ -83,6 +91,13 @@ I18N = {
         "denied_msg": "Unable to arm protection.\nEnsure your VPN is active and external IP is outside restricted regions.",
         "launch_denied_title": "Safe Launch Denied",
         "launch_denied_msg": "Launch aborted for safety:\n{}",
+        "claude_not_found_title": "Claude Desktop Not Found",
+        "claude_not_found_desc": "Claude Desktop executable was not found on this system.\n\n• If Claude is installed in a custom location, locate claude.exe manually.\n• If Claude is not installed yet, download it from the official website.",
+        "btn_browse_claude": "LOCATE CLAUDE.EXE",
+        "btn_download_claude": "DOWNLOAD FROM CLAUDE.AI",
+        "btn_close": "CLOSE",
+        "path_saved_title": "Path Saved",
+        "path_saved_msg": "Claude executable path updated:\n{}",
         "lang_name": "EN",
         "theme_dark": "DARK",
         "theme_light": "LIGHT"
@@ -313,9 +328,13 @@ class ClaudeKillSwitchGUI(ctk.CTk):
         )
         self.btn_arm_toggle.grid(row=0, column=0, padx=(0, 6), sticky="ew")
 
-        # Launch Claude Button
+        # Launch Claude Button Container
+        launch_frame = ctk.CTkFrame(ctrl_frame, fg_color="transparent")
+        launch_frame.grid(row=0, column=1, padx=6, sticky="ew")
+        launch_frame.grid_columnconfigure(0, weight=1)
+
         self.btn_launch_claude = ctk.CTkButton(
-            ctrl_frame,
+            launch_frame,
             text=self.t("btn_launch"),
             font=ctk.CTkFont(family="Segoe UI", size=13, weight="bold"),
             fg_color=self.C_CARD,
@@ -327,7 +346,23 @@ class ClaudeKillSwitchGUI(ctk.CTk):
             height=44,
             command=self._launch_claude
         )
-        self.btn_launch_claude.grid(row=0, column=1, padx=6, sticky="ew")
+        self.btn_launch_claude.grid(row=0, column=0, sticky="ew")
+
+        self.btn_browse_claude = ctk.CTkButton(
+            launch_frame,
+            text="📁",
+            font=ctk.CTkFont(size=14),
+            fg_color=self.C_CARD,
+            hover_color=("#E4E4E7", "#27272A"),
+            border_width=1,
+            border_color=self.C_BORDER,
+            text_color=self.C_TEXT_MAIN,
+            corner_radius=8,
+            width=38,
+            height=44,
+            command=self._choose_claude_path
+        )
+        self.btn_browse_claude.grid(row=0, column=1, padx=(6, 0), sticky="e")
 
         # Panic Kill Button
         self.btn_panic_kill = ctk.CTkButton(
@@ -597,10 +632,126 @@ class ClaudeKillSwitchGUI(ctk.CTk):
             if not success:
                 messagebox.showerror(self.t("denied_title"), self.t("denied_msg"))
 
+    def _choose_claude_path(self):
+        initial_dir = os.environ.get("LOCALAPPDATA", "C:\\")
+        file_path = filedialog.askopenfilename(
+            parent=self,
+            title="Выберите claude.exe",
+            initialdir=initial_dir,
+            filetypes=[("Claude Executable", "*.exe"), ("All Files", "*.*")]
+        )
+        if file_path:
+            self.config_data["claude_path"] = file_path
+            self.engine.config["claude_path"] = file_path
+            save_config(self.config_data)
+            self.engine.log(f"Настроен путь к Claude: {file_path}", "SUCCESS")
+            messagebox.showinfo(self.t("path_saved_title"), self.t("path_saved_msg").format(file_path))
+            return file_path
+        return None
+
+    def _show_claude_not_found_dialog(self):
+        dialog = ctk.CTkToplevel(self)
+        dialog.title(self.t("claude_not_found_title"))
+        dialog.geometry("520x290")
+        dialog.resizable(False, False)
+        dialog.transient(self)
+        dialog.grab_set()
+
+        # Center relative to parent
+        self.update_idletasks()
+        x = self.winfo_x() + (self.winfo_width() - 520) // 2
+        y = self.winfo_y() + (self.winfo_height() - 290) // 2
+        dialog.geometry(f"+{max(0, x)}+{max(0, y)}")
+        dialog.configure(fg_color=self.C_ROOT)
+
+        card = ctk.CTkFrame(
+            dialog,
+            fg_color=self.C_CARD,
+            border_width=1,
+            border_color=self.C_BORDER,
+            corner_radius=10
+        )
+        card.pack(fill="both", expand=True, padx=20, pady=20)
+
+        title_lbl = ctk.CTkLabel(
+            card,
+            text=f"⚠️  {self.t('claude_not_found_title')}",
+            font=ctk.CTkFont(family="Segoe UI", size=16, weight="bold"),
+            text_color=self.C_TEXT_MAIN
+        )
+        title_lbl.pack(anchor="w", padx=20, pady=(18, 8))
+
+        desc_lbl = ctk.CTkLabel(
+            card,
+            text=self.t("claude_not_found_desc"),
+            font=ctk.CTkFont(size=12),
+            text_color=self.C_TEXT_MUTED,
+            justify="left",
+            wraplength=440
+        )
+        desc_lbl.pack(anchor="w", padx=20, pady=(0, 16))
+
+        btn_box = ctk.CTkFrame(card, fg_color="transparent")
+        btn_box.pack(fill="x", padx=20, pady=(0, 16), side="bottom")
+
+        def on_locate():
+            dialog.destroy()
+            chosen = self._choose_claude_path()
+            if chosen:
+                self._launch_claude()
+
+        def on_download():
+            dialog.destroy()
+            webbrowser.open("https://claude.ai/download")
+
+        def on_cancel():
+            dialog.destroy()
+
+        btn_locate = ctk.CTkButton(
+            btn_box,
+            text=self.t("btn_browse_claude"),
+            font=ctk.CTkFont(size=11, weight="bold"),
+            fg_color=("#18181B", "#FFFFFF"),
+            hover_color=("#27272A", "#E4E4E7"),
+            text_color=("#FFFFFF", "#000000"),
+            height=36,
+            command=on_locate
+        )
+        btn_locate.pack(side="left", fill="x", expand=True, padx=(0, 6))
+
+        btn_dl = ctk.CTkButton(
+            btn_box,
+            text=self.t("btn_download_claude"),
+            font=ctk.CTkFont(size=11, weight="bold"),
+            fg_color=self.C_CARD,
+            border_width=1,
+            border_color=self.C_BORDER,
+            hover_color=("#E4E4E7", "#27272A"),
+            text_color=self.C_TEXT_MAIN,
+            height=36,
+            command=on_download
+        )
+        btn_dl.pack(side="left", fill="x", expand=True, padx=6)
+
+        btn_cancel = ctk.CTkButton(
+            btn_box,
+            text=self.t("btn_close"),
+            font=ctk.CTkFont(size=11),
+            fg_color="transparent",
+            hover_color=("#E4E4E7", "#27272A"),
+            text_color=self.C_TEXT_MUTED,
+            width=60,
+            height=36,
+            command=on_cancel
+        )
+        btn_cancel.pack(side="right", padx=(6, 0))
+
     def _launch_claude(self):
         success, msg = self.engine.launch_claude_safely()
         if success:
             self.engine.log(msg, "SUCCESS")
+        elif msg == "CLAUDE_NOT_FOUND":
+            self._show_claude_not_found_dialog()
         else:
             messagebox.showerror(self.t("launch_denied_title"), self.t("launch_denied_msg").format(msg))
 

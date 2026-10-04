@@ -294,7 +294,7 @@ class KillSwitchEngine:
 
     # ==================== SAFE CLAUDE LAUNCHER ====================
 
-    def launch_claude_safely(self) -> tuple[bool, str]:
+    def launch_claude_safely(self, custom_path: Optional[str] = None) -> tuple[bool, str]:
         """Launches Claude only if the connection is confirmed safe."""
         # 1. Check current IP
         ip, _ = self.fetch_fast_ip()
@@ -313,9 +313,9 @@ class KillSwitchEngine:
         if self.state != self.STATE_ARMED:
             self.arm()
 
-        claude_exe = get_claude_executable_path()
+        claude_exe = custom_path or get_claude_executable_path(self.config.get("claude_path", ""))
         if not claude_exe or not os.path.exists(claude_exe):
-            return False, "Claude Desktop executable not found on system."
+            return False, "CLAUDE_NOT_FOUND"
 
         try:
             subprocess.Popen([claude_exe], shell=False)
